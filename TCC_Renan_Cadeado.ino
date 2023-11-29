@@ -172,7 +172,18 @@ void handleNewMessages(int numNewMessages)
 
     if(text == "/configuracao")
     {
-
+        bot.sendMessage(chat_id, "Configurando cadeado...");
+        bot.sendMessage(chat_id, "Está utilizando um servo-motor?")
+        bot.sendMessage(chat_id, "S / N")
+        if(text == "S")
+        {
+          cadeadoRotacao = true;
+        }
+        else
+        {
+          cadeadoRotacao = false;
+          //break;
+        }
     }
   }
 }
@@ -211,7 +222,7 @@ void AbrirCadeado()
       delay(15); // waits 15ms to reach the position
     }
   }
-  else if(solenoide == true)
+  else
   {
     digitalWrite(SOLENOIDE_PIN, LOW);
   }
@@ -231,13 +242,9 @@ void FecharCadeado()
     }
 
   }
-  else if(solenoide == true)
+  else
   {
     digitalWrite(SOLENOIDE_PIN, HIGH);
-  }
-  else if()
-  {
-
   }
 
     //verificarFimCurso();
@@ -251,6 +258,7 @@ void saveChatIdsToEEPROM()
   {
     EEPROM.writeString(i * 10, chatIds[i]);
   }
+  EEPROM.write(11, cadeadoRotacao ? 1 : 0);
   EEPROM.commit();
 }
 
@@ -265,6 +273,8 @@ void loadChatIdsFromEEPROM()
       numChatIds++;
     }
   }
+
+  cadeadoRotacao = EEPROM.read(11) != 0;
 }
 
 void loop() 
@@ -282,4 +292,10 @@ void loop()
 
     bot_lasttime = millis();
   }
+  
+  // Configurar o tempo de Light Sleep (em microssegundos)
+  esp_sleep_enable_timer_wakeup(tempoLightSleep * 1000000);
+
+  // Entrar em Light Sleep
+  esp_light_sleep_start();
 }
